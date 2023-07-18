@@ -23,7 +23,12 @@ RcGroups 'jihlein' - IMU implementation overhaul + SBUS implementation.
 Everyone that sends me pictures and videos of your flying creations! -Nick
 
 */
+/* Heading Calucaltions inspired by:
+https://www.instructables.com/Tilt-Compensated-Compass/
+And the almighty Paul McWhorter:
+https://www.youtube.com/watch?v=p_qZ-ie2R7o
 
+*/
 
 
 //========================================================================================================================//
