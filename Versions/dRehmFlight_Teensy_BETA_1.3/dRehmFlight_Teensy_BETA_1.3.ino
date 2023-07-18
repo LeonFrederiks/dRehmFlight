@@ -275,6 +275,11 @@ float AccX_prev, AccY_prev, AccZ_prev;
 float GyroX, GyroY, GyroZ;
 float GyroX_prev, GyroY_prev, GyroZ_prev;
 float MagX, MagY, MagZ;
+float XMag, YMag; // add vars for heading calc
+float XMag_dampend, YMag_dampend; // add vars for heading calc
+float Heading; // add vars for heading calc
+float Declination = ; //the declination in your area
+float roll_IMU_Rad, pitch_IMU_Rad; // add vars for heading calc
 float MagX_prev, MagY_prev, MagZ_prev;
 float roll_IMU, pitch_IMU, yaw_IMU;
 float roll_IMU_prev, pitch_IMU_prev;
@@ -488,6 +493,37 @@ void controlMixer() {
   s6_command_scaled = 0;
   s7_command_scaled = 0;
  
+}
+//pitch_imu, roll_imu, MagX,MagY,MagZ,  Xmag,Ymag
+void Calculate_Mag_Heading(){
+  // Option 1 below
+  pitch_IMU_Rad = pitch_IMU *3.14/180; // pitch angel converted to radiants 
+  roll_IMU_Rad = roll_IMU *3.14/180; // roll angel converted to radiants 
+  
+  XMag = MagX *cos(pitch_IMU_Rad) - MagY *sin(roll_IMU_Rad)* sin(pitch_IMU_Rad) + MagZ * cos(roll_IMU_Rad) *sin(pitch_IMU_Rad);
+  YMag = MagY *cos(roll_IMU_Rad) + MagZ *sin(roll_IMU_Rad);
+   /* I do not yet know whitch of the 2 options is the best...
+   //Option 2 below
+  pitch_IMU_Rad = -GyroX *3.14/180;
+  roll_IMU_Rad = GyroY *3.14/180;
+
+  XMag = MagX *cos(pitch_IMU_Rad) + MagY *sin(roll_IMU_Rad)* sin(pitch_IMU_Rad) - MagZ * cos(roll_IMU_Rad) *sin(pitch_IMU_Rad);
+  YMag = MagY *cos(roll_IMU_Rad) + MagZ *sin(roll_IMU_Rad);
+ */
+  //Possible dampening of the calculations tune to your nessesary responsiveness if you want the max respons just leave it commented
+  // if you are using this don't forget to switch the yMag for Ymag dampend and same for the x
+  //XMag_dampend = XMag_dampend * 0.9 + XMag * 0.1;
+  //YMag_dampend = YMag_dampend * 0.9 + YMag * 0.1;
+
+  Heading = atan2(YMag,XMag) *180/3.14;
+
+  Heading += Declination; // Geographic North
+  if (Heading > 360.0) Heading -= 360.0;
+  if (Heading < 0.0) Heading += 360.0;
+
+  // ----- Allow for under/overflow
+  if (Heading < 0) Heading += 360;
+  if (Heading >= 360) Heading -= 360;
 }
 
 void armedStatus() {
@@ -1634,7 +1670,9 @@ void printMagData() {
     Serial.print(F(" MagY: "));
     Serial.print(MagY);
     Serial.print(F(" MagZ: "));
-    Serial.println(MagZ);
+    Serial.print(MagZ);
+    Serial.print(F(" Heading: "));
+    Serial.println(Heading);
   }
 }
 
