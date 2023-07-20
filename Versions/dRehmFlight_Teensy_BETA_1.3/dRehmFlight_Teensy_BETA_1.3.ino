@@ -422,7 +422,8 @@ void loop() {
   //Get vehicle state
   getIMUdata(); //Pulls raw gyro, accelerometer, and magnetometer data from IMU and LP filters to remove noise
   Madgwick(GyroX, -GyroY, -GyroZ, -AccX, AccY, AccZ, MagY, -MagX, MagZ, dt); //Updates roll_IMU, pitch_IMU, and yaw_IMU angle estimates (degrees)
-
+  // Calculate heading
+  Calculate_Mag_Heading()
   //Compute desired state
   getDesState(); //Convert raw commands to normalized values based on saturated control limits
   
